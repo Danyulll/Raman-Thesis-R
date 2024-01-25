@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.450">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>PSS</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="PSS-Test_files/libs/clipboard/clipboard.min.js"></script>
+<script src="PSS-Test_files/libs/quarto-html/quarto.js"></script>
+<script src="PSS-Test_files/libs/quarto-html/popper.min.js"></script>
+<script src="PSS-Test_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="PSS-Test_files/libs/quarto-html/anchor.min.js"></script>
+<link href="PSS-Test_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="PSS-Test_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="PSS-Test_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="PSS-Test_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="PSS-Test_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">PSS</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<section id="data" class="level1">
+<h1>Data</h1>
+<p>These are the Raman of the pure chemicals as solids:</p>
+<div class="cell" data-hash="PSS-Test_cache/html/unnamed-chunk-1_18ac7af241830324ec80f8bdc4a4b9fa">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pure_df <span class="ot">&lt;-</span>  <span class="fu">read.csv</span>(<span class="st">"..</span><span class="sc">\\</span><span class="st">Data</span><span class="sc">\\</span><span class="st">Input Data for NMF</span><span class="sc">\\</span><span class="st">Input Data for NMF</span><span class="sc">\\</span><span class="st">1. Misc q=4 and q=4+ pure bases</span><span class="sc">\\</span><span class="st">4BasesPure_CA-Glu-Gly-Ser.csv"</span>,<span class="at">header =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>titles <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Raman Spectrum for CA"</span>, <span class="st">"Raman Spectrum for Glu"</span>,<span class="st">"Raman Spectrum for Gly"</span>,<span class="st">"Raman Spectrum for Ser"</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">2</span>))</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>) {</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(pure_df[i,]),<span class="fu">as.numeric</span>(pure_df[i,]),<span class="at">type=</span><span class="st">"l"</span>,<span class="at">ylab=</span><span class="st">"Intensity"</span>,<span class="at">xlab=</span><span class="st">"Index"</span>,<span class="at">main=</span>titles[i])  </span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="PSS-Test_files/figure-html/unnamed-chunk-1-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>If you dissolve the same chemicals in a solution you get new spectra:</p>
+<div class="cell" data-hash="PSS-Test_cache/html/unnamed-chunk-2_3f73ba953c741986717f6cf2c8825aa9">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>pure_diss_df <span class="ot">&lt;-</span>  <span class="fu">read.csv</span>(<span class="st">"..</span><span class="sc">\\</span><span class="st">Data</span><span class="sc">\\</span><span class="st">Input Data for NMF</span><span class="sc">\\</span><span class="st">Input Data for NMF</span><span class="sc">\\</span><span class="st">2. Misc q=4 and q=4+ solution bases</span><span class="sc">\\</span><span class="st">4BasesNorm_CA-Glu-Gly-Ser.csv"</span>,<span class="at">header =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>plot_pure_spec_dis <span class="ot">&lt;-</span> <span class="cf">function</span>(){</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>titles <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Raman Spectrum for CA"</span>, <span class="st">"Raman Spectrum for Glu"</span>,<span class="st">"Raman Spectrum for Gly"</span>,<span class="st">"Raman Spectrum for Ser"</span>)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">2</span>))</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>) {</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(pure_diss_df[i,]),<span class="fu">as.numeric</span>(pure_diss_df[i,]),<span class="at">type=</span><span class="st">"l"</span>,<span class="at">ylab=</span><span class="st">"Intensity"</span>,<span class="at">xlab=</span><span class="st">"Index"</span>,<span class="at">main=</span>titles[i])  </span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_pure_spec_dis</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="PSS-Test_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>The following data was the data put into GBR-NMF:</p>
+<div class="cell" data-hash="PSS-Test_cache/html/unnamed-chunk-3_49442ee1166260f49d539c8fd9643909">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>misc_gbrnmf <span class="ot">&lt;-</span>  <span class="fu">read.csv</span>(<span class="st">"..</span><span class="sc">\\</span><span class="st">Data</span><span class="sc">\\</span><span class="st">Input Data for NMF</span><span class="sc">\\</span><span class="st">Input Data for NMF</span><span class="sc">\\</span><span class="st">2. Misc q=4 and q=4+ solution bases</span><span class="sc">\\</span><span class="st">nmf_data_CA_Glu_Gly_Ser.csv"</span>,<span class="at">header =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(misc_gbrnmf[,<span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>            V1           V2           V3           V4           V5           V6
+1 0.0016324002 0.0016879409 0.0009353232 6.744077e-04 0.0005896238 4.254590e-04
+2 0.0014378929 0.0013663762 0.0010029572 6.696975e-04 0.0004860160 3.062998e-04
+3 0.0017927613 0.0014456128 0.0010740219 7.397337e-04 0.0003225643 2.987971e-04
+4 0.0006090482 0.0005901997 0.0002831880 1.599110e-04 0.0001392164 1.633525e-04
+5 0.0007106174 0.0004973362 0.0004058312 7.522834e-05 0.0002139933 1.035101e-06
+6 0.0007349224 0.0006671383 0.0005839417 2.905072e-04 0.0001725518 1.030777e-04</code></pre>
+</div>
+</div>
+<p>There are 3 replicates of 5 mixtures of the same 4 solutions at varying concentrations. This dataframe corresponds to A1-A5 as in the paper. Replicate means they remade the solution and took a Raman spectrum.</p>
+<div class="cell" data-hash="PSS-Test_cache/html/unnamed-chunk-4_7338e61fdce9a82fcb140e377320eb2e">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">2</span>))</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>titles <span class="ot">&lt;-</span> <span class="fu">sapply</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, <span class="cf">function</span>(i) <span class="fu">paste0</span>(<span class="st">"A"</span>, i, <span class="st">"-"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>)) <span class="sc">|&gt;</span> <span class="fu">as.vector</span>()</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (j <span class="cf">in</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">4</span>,<span class="dv">7</span>,<span class="dv">10</span>,<span class="dv">13</span>)) {</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(misc_gbrnmf[j,]),<span class="fu">as.numeric</span>(misc_gbrnmf[j,]),<span class="at">type=</span><span class="st">"l"</span>,<span class="at">ylab=</span><span class="st">"Intensity"</span>,<span class="at">xlab=</span><span class="st">"Index"</span>,<span class="at">col=</span><span class="dv">1</span>,<span class="at">lty=</span><span class="dv">1</span>) </span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> (j<span class="sc">+</span><span class="dv">1</span>)<span class="sc">:</span>(j<span class="sc">+</span><span class="dv">2</span>)) {</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">lines</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(misc_gbrnmf[i,]),<span class="fu">as.numeric</span>(misc_gbrnmf[i,]),<span class="at">col=</span>i,<span class="at">lty=</span>i)</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">"topright"</span>, <span class="at">legend=</span>titles[j<span class="sc">:</span>(j<span class="sc">+</span><span class="dv">2</span>)], <span class="at">col=</span><span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, <span class="at">lty=</span><span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>)</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="PSS-Test_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="cell-output-display">
+<p><img src="PSS-Test_files/figure-html/unnamed-chunk-4-2.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>This structure is followed for the B’s (Lipids) and the C’s (TCA). They were looking to see if they could recover the concentrations of the solutions from the mixture by telling NMF which bases signals were present. We want to see if there are Bayesian techniques to deconvolve this mixture into individual signals and see if we can tell the concentration.</p>
+<p>We are going to do a PBSS on the Raman spectra using JAGS.</p>
+</section>
+<section id="background" class="level1">
+<h1>Background</h1>
+<p>The following comes from <span class="citation" data-cites="brie2016bayesian">(<a href="#ref-brie2016bayesian" role="doc-biblioref">Brie et al. 2016</a>)</span>. Consider the following model:</p>
+<p><span class="math display">\[\mathbf{X} = \mathbf{AS} + \mathbf{E}\]</span></p>
+<ul>
+<li><span class="math inline">\(\mathbf{X}_{m \times n}\)</span> is the data matrix where row vectors are the spectra.</li>
+<li><span class="math inline">\(\mathbf{A}_{m \times p}\)</span> is the mixing matrix with its column vectors representing the mixing coefficients of each pure component.</li>
+<li><span class="math inline">\(\mathbf{S}_{p \times n}\)</span> is the spectra matrix where each row vector is one of the <span class="math inline">\(p\)</span> pure spectra.</li>
+<li><span class="math inline">\(\mathbf{E}_{m \times n}\)</span> is the additive noise matrix.</li>
+<li>It is assumed <span class="math inline">\(\mathbf{A}\)</span> and <span class="math inline">\(\mathbf{S}\)</span> are independent.</li>
+</ul>
+<p>Solutions are not unique therefore prior information on the pure component spectra and concentration profiles should be included.</p>
+<p>Each noise sequence (row vector of <span class="math inline">\(\mathbf{E}\)</span>) is assumed iid Gaussian with zero mean and constant variance within a row. The prior of <span class="math inline">\(\mathbf{E}\)</span> is given as</p>
+<p><span class="math display">\[p(\mathbf{E}|\theta_1)=\prod^m_{i=1}\prod^n_{k=1}\mathcal{N}(E_{(i,k)};0,\sigma^2_i)\]</span></p>
+<ul>
+<li><span class="math inline">\(\theta_1 = [\sigma_1^2,\dots,\sigma_m^2]^T\)</span>.</li>
+</ul>
+<p>The pure component spectra are considered mutually independent and identically distribution. Each pure spectrum (row of <span class="math inline">\(\mathbf{S}\)</span>) is assumed Gamma with hyperparameters constant for each spectrum. The prior of <span class="math inline">\(\mathbf{S}\)</span> is given as</p>
+<p><span class="math display">\[p(\mathbf{S}|\theta_2)=\prod^n_{j=1}\prod^n_{k=1}\mathcal{G}(S_{(j,k)};\alpha_j,\beta_j)\]</span></p>
+<ul>
+<li><span class="math inline">\(\theta_2 = [\alpha_1,\dots,\alpha_p,\beta_1,\dots,\beta_p]^T\)</span>.</li>
+</ul>
+<p>Every column of the mixing matrix is assumed Gamma with hyperparameters constant within columns. The prior of <span class="math inline">\(\mathbf{A}\)</span> is given as</p>
+<p><span class="math display">\[p(\mathbf{A}|\theta_3)=\prod^m_{i=1}\prod^p_{j=1}\mathcal{G}(A_{(i,j);\gamma_j,\delta_j})\]</span></p>
+<ul>
+<li><span class="math inline">\(\theta_3=[\gamma_1,\dots,\gamma_p,\delta_1,\dots,\delta_p]^T\)</span></li>
+</ul>
+<p>The prior for the variance hyperparameter of <span class="math inline">\(\mathbf{E}\)</span> is a <span class="math inline">\(\mathcal{G}(2,\epsilon)\)</span> assigned to <span class="math inline">\(\frac{1}{\sigma^2_i}\)</span> where <span class="math inline">\(\epsilon\)</span> is a small number like <span class="math inline">\(10^{-1}\)</span>. The hyperparameters of both <span class="math inline">\(\mathbf{A}\)</span> and <span class="math inline">\(\mathbf{S}\)</span> are <span class="math inline">\(\mathcal{G}(2,\epsilon)\)</span>.</p>
+<p>The likelihood of the model is given by</p>
+<p><span class="math display">\[p(\mathbf{X|\mathbf{S},\mathbf{A},\theta_1})\propto \prod^m_{i=1}\prod^n_{k=1}\left(\frac{1}{\sigma_i}\right)^n\text{exp} \left[ -\frac{1}{2\sigma_i^2}\left(X_{(i,k)}-[\mathbf{AS}]_{(i,k)}\right)^2\right]\]</span></p>
+</section>
+<section id="jags" class="level1">
+<h1>JAGS</h1>
+<p>For the following we will try to specify BPSS in JAGS. We’re only going to use 1 chain and try different configurations to see what signals we get</p>
+<section id="uninformative-priors" class="level2">
+<h2 class="anchored" data-anchor-id="uninformative-priors">Uninformative Priors</h2>
+<p>First we will attempt a decomposition of the 3 A1 replicates using uninformative priors.</p>
+<div class="cell" data-hash="PSS-Test_cache/html/unnamed-chunk-5_b656c8d0dd0fd322d6d15c4f0bb74030">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span>  <span class="fu">as.matrix</span>(misc_gbrnmf[<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>,])</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>m <span class="ot">&lt;-</span> <span class="fu">nrow</span>(X)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="fu">ncol</span>(X)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="dv">4</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>E <span class="ot">&lt;-</span> <span class="dv">10</span><span class="sc">^-</span><span class="dv">3</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>dataList <span class="ot">=</span> <span class="fu">list</span>(<span class="at">X =</span> X, <span class="at">m =</span> m, <span class="at">n =</span> n, <span class="at">p =</span> p, <span class="at">E =</span> E)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-hash="PSS-Test_cache/html/unnamed-chunk-6_417332e65edc832e97b03b140af18445">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rjags)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(runjags)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(coda)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="co"># jagsModel = jags.model(</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="co">#   file = "PSSmodel.txt" ,</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="co">#   data = dataList ,</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="co">#   n.chains = 1 ,</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="co">#   n.adapt = 1000</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="co"># )</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="co"># update(jagsModel , n.iter = 1000)</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="co"># codaSamples = coda.samples(jagsModel ,</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="co">#                            variable.names = c("A","S") ,</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="co">#                            n.iter = 50000/4)</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a><span class="co"># save(codaSamples, file = "./data/codaSamplesUninformativePrior.RData")</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">"./data/codaSamplesUninformativePrior.RData"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-hash="PSS-Test_cache/html/unnamed-chunk-7_5a9d382845b40f921b6debe273178dbd">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Put samples in dataframe</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>codaSamples[[<span class="dv">1</span>]] <span class="sc">|&gt;</span> <span class="fu">as.data.frame</span>() <span class="ot">-&gt;</span> AS</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract matrices</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>S <span class="ot">&lt;-</span> AS[,<span class="sc">-</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">12</span>)]</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>A <span class="ot">&lt;-</span> AS[,(<span class="dv">1</span><span class="sc">:</span><span class="dv">12</span>)]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-hash="PSS-Test_cache/html/unnamed-chunk-8_e84e818bfcd480d95782f6f30133fc3d">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Make function for plotting mean learned spectra</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>plot_s <span class="ot">&lt;-</span> <span class="cf">function</span>(S) {</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>))</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  s1 <span class="ot">&lt;-</span> S[, <span class="fu">grep</span>(<span class="st">"S</span><span class="sc">\\</span><span class="st">[1,"</span>, <span class="fu">names</span>(S))]</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="co"># s1 &lt;- s1[45000:50000,]</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  s1_mean <span class="ot">&lt;-</span> <span class="fu">apply</span>(s1, <span class="at">MARGIN =</span> <span class="dv">2</span>, mean)</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot</span>(s1_mean, <span class="at">lty =</span> <span class="dv">1</span>, <span class="at">type =</span> <span class="st">"l"</span>)</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>  s2 <span class="ot">&lt;-</span> S[, <span class="fu">grep</span>(<span class="st">"S</span><span class="sc">\\</span><span class="st">[2,"</span>, <span class="fu">names</span>(S))]</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>  s2_mean <span class="ot">&lt;-</span> <span class="fu">apply</span>(s2, <span class="at">MARGIN =</span> <span class="dv">2</span>, mean)</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot</span>(s2_mean, <span class="at">lty =</span> <span class="dv">1</span>, <span class="at">type =</span> <span class="st">"l"</span>)</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>  s3 <span class="ot">&lt;-</span> S[, <span class="fu">grep</span>(<span class="st">"S</span><span class="sc">\\</span><span class="st">[3,"</span>, <span class="fu">names</span>(S))]</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>  s3_mean <span class="ot">&lt;-</span> <span class="fu">apply</span>(s3, <span class="at">MARGIN =</span> <span class="dv">2</span>, mean)</span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot</span>(s3_mean, <span class="at">lty =</span> <span class="dv">1</span>, <span class="at">type =</span> <span class="st">"l"</span>)</span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>  s4 <span class="ot">&lt;-</span> S[, <span class="fu">grep</span>(<span class="st">"S</span><span class="sc">\\</span><span class="st">[4,"</span>, <span class="fu">names</span>(S))]</span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>  s4_mean <span class="ot">&lt;-</span> <span class="fu">apply</span>(s4, <span class="at">MARGIN =</span> <span class="dv">2</span>, mean)</span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot</span>(s4_mean, <span class="at">lty =</span> <span class="dv">1</span>, <span class="at">type =</span> <span class="st">"l"</span>)</span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a><span class="co"># Make a function to get mean mixing props</span></span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>summar_A <span class="ot">&lt;-</span> <span class="cf">function</span>(A) {</span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>  a1 <span class="ot">&lt;-</span> A[, <span class="fu">grep</span>(<span class="st">"A</span><span class="sc">\\</span><span class="st">[1,"</span>, <span class="fu">names</span>(A))]</span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>  a1_mean <span class="ot">&lt;-</span> <span class="fu">apply</span>(a1, <span class="at">MARGIN =</span> <span class="dv">2</span>, mean)</span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a>  a2 <span class="ot">&lt;-</span> A[, <span class="fu">grep</span>(<span class="st">"A</span><span class="sc">\\</span><span class="st">[2,"</span>, <span class="fu">names</span>(A))]</span>
+<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a>  a2_mean <span class="ot">&lt;-</span> <span class="fu">apply</span>(a2, <span class="at">MARGIN =</span> <span class="dv">2</span>, mean)</span>
+<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a>  a3 <span class="ot">&lt;-</span> A[, <span class="fu">grep</span>(<span class="st">"A</span><span class="sc">\\</span><span class="st">[3,"</span>, <span class="fu">names</span>(A))]</span>
+<span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a>  a3_mean <span class="ot">&lt;-</span> <span class="fu">apply</span>(a3, <span class="at">MARGIN =</span> <span class="dv">2</span>, mean)</span>
+<span id="cb9-37"><a href="#cb9-37" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-38"><a href="#cb9-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">a1 =</span> a1_mean,</span>
+<span id="cb9-39"><a href="#cb9-39" aria-hidden="true" tabindex="-1"></a>       <span class="at">a2 =</span> a2_mean,</span>
+<span id="cb9-40"><a href="#cb9-40" aria-hidden="true" tabindex="-1"></a>       <span class="at">a3 =</span> a3_mean)</span>
+<span id="cb9-41"><a href="#cb9-41" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-hash="PSS-Test_cache/html/unnamed-chunk-9_fee192c87a74b698a8ab4e6d02ab6db9">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot Spectra</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_s</span>(S)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="PSS-Test_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<div class="cell" data-hash="PSS-Test_cache/html/unnamed-chunk-10_3bcdfedfe42289f3ccf2f7da71e2411e">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_pure_spec_dis</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="PSS-Test_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Looks like bottom right plot is Gly but they are really noisey.</p>
+<p>Here is an example of the diagnostics for one of the parameter values. Likely chain didn’t converge and posterior density is multimodal.</p>
+<div class="cell" data-hash="PSS-Test_cache/html/unnamed-chunk-11_25e828a9dda47046c0cdfe0594089668">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"./utilities/DBDA2E-utilities.R"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+*********************************************************************
+Kruschke, J. K. (2015). Doing Bayesian Data Analysis, Second Edition:
+A Tutorial with R, JAGS, and Stan. Academic Press / Elsevier.
+*********************************************************************</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">diagMCMC</span>( <span class="at">codaObject=</span>codaSamples , <span class="at">parName=</span><span class="st">"S[1,8]"</span> )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Error in gelman.diag(window(x, end = last.iter[i]), confidence = confidence,  : 
+  You need at least two chains</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Warning: coda::gelman.plot fails for S[1,8]"</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="PSS-Test_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<div class="cell" data-hash="PSS-Test_cache/html/unnamed-chunk-12_c090e5f9468739d6be782d39e5ed1077">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plotPost</span>( codaSamples[,<span class="st">"S[1,8]"</span>] , <span class="at">main=</span><span class="st">"theta"</span> , <span class="at">xlab=</span><span class="fu">bquote</span>(theta) ,</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="at">cenTend=</span><span class="st">"median"</span> )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="PSS-Test_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>           ESS     mean   median      mode hdiMass     hdiLow  hdiHigh compVal
+theta 3.534253 1.089558 1.191146 0.1597042    0.95 0.04029776 2.349739      NA
+      pGtCompVal ROPElow ROPEhigh pLtROPE pInROPE pGtROPE
+theta         NA      NA       NA      NA      NA      NA</code></pre>
+</div>
+</div>
+<p>Weird looking posterior. Lets see what the mixing proportions are:</p>
+<div class="cell" data-hash="PSS-Test_cache/html/unnamed-chunk-13_02a5d64d7bec50b84721098b5cde3f02">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>A_mean <span class="ot">&lt;-</span> <span class="fu">summar_A</span>(A)</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>A_mean</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>$a1
+      A[1,1]       A[1,2]       A[1,3]       A[1,4] 
+0.0003541651 0.0002109237 0.0002663818 0.0004994280 
+
+$a2
+      A[2,1]       A[2,2]       A[2,3]       A[2,4] 
+0.0003486336 0.0001971982 0.0002710399 0.0005170982 
+
+$a3
+      A[3,1]       A[3,2]       A[3,3]       A[3,4] 
+0.0003473696 0.0001945275 0.0002731052 0.0005202414 
+
+$a4
+numeric(0)</code></pre>
+</div>
+</div>
+<p>Proportions are fairly even except of the last which is encouraging except mixtures don’t sum to one… model mispecification?</p>
+</section>
+<section id="informative-prior-exp" class="level2">
+<h2 class="anchored" data-anchor-id="informative-prior-exp">Informative Prior (Exp)</h2>
+<p>Now we can try decomposing with very informative priors on S and see if we recover equal mixing proportions in A.</p>
+<div class="cell" data-hash="PSS-Test_cache/html/unnamed-chunk-14_fe8fc30fd7ea1410a52b0e1a2ec6ce81">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span>  <span class="fu">as.matrix</span>(misc_gbrnmf[<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>,])</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>m <span class="ot">&lt;-</span> <span class="fu">nrow</span>(X)</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="fu">ncol</span>(X)</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="dv">4</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>E <span class="ot">&lt;-</span> <span class="dv">10</span><span class="sc">^-</span><span class="dv">3</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>alpha_s <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fl">0.05</span>, <span class="at">nrow =</span> p, <span class="at">ncol =</span> n)</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>beta_s <span class="ot">&lt;-</span> <span class="fl">0.05</span> <span class="sc">/</span> <span class="fu">as.matrix</span>(pure_diss_df)</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>beta_s[<span class="fu">is.infinite</span>(beta_s)] <span class="ot">&lt;-</span> E</span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>dataList <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">X =</span> X, <span class="at">m =</span> m, <span class="at">n =</span> n, <span class="at">p =</span> p, <span class="at">E =</span> E, <span class="at">alpha_s =</span> alpha_s, <span class="at">beta_s =</span> beta_s)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Here is an example of the gamma prior we are trying:</p>
+<div class="cell" data-hash="PSS-Test_cache/html/unnamed-chunk-15_0d024f1b11bc20de0b733c787a6dbc68">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a sequence of x values</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="fl">0.2</span>, <span class="at">length.out =</span> <span class="dv">1000</span>)</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute the density of the Gamma distribution at these x values</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="fu">dgamma</span>(x, <span class="at">shape =</span> alpha_s[<span class="dv">2</span>,<span class="dv">100</span>], <span class="at">rate =</span> beta_s[<span class="dv">2</span>,<span class="dv">100</span>])</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot the distribution</span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(x, y, <span class="at">type =</span> <span class="st">'l'</span>, <span class="at">main =</span> <span class="st">'Gamma Distribution'</span>,</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">'x'</span>, <span class="at">ylab =</span> <span class="st">'Density'</span>, <span class="at">col =</span> <span class="st">'blue'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="PSS-Test_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>It is essentially exponential with the expectation centered on the true pure spectrum value. First lets use JAGS with no data to investigate our prior model:</p>
+<div class="cell" data-hash="PSS-Test_cache/html/unnamed-chunk-16_b766103fcdeed327ef598fe031f938a6">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># dataList &lt;- list(m = m, n = n, p = p, E = E, alpha_s = alpha_s, beta_s = beta_s)</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="co"># jagsModel = jags.model(</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="co">#   file = "PSSmodel.txt" ,</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="co">#   data = dataList ,</span></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a><span class="co">#   n.chains = 1 ,</span></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a><span class="co">#   n.adapt = 500</span></span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a><span class="co"># )</span></span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a><span class="co"># update(jagsModel , n.iter = 1000)</span></span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a><span class="co"># codaSamples = coda.samples(jagsModel ,</span></span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a><span class="co">#                            variable.names = c("A","S") ,</span></span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a><span class="co">#                            n.iter = 50000/4)</span></span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a><span class="co"># save(codaSamples, file = "./data/badPriors.RData")</span></span>
+<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">"./data/badPriors.RData"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-hash="PSS-Test_cache/html/unnamed-chunk-17_c9cba3b5a03d4c30b7f775b5c45fa8f5">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert mcmc.list to a list of data frames</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>codaSamples[[<span class="dv">1</span>]] <span class="sc">|&gt;</span> <span class="fu">as.data.frame</span>() <span class="ot">-&gt;</span> AS</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>S <span class="ot">&lt;-</span> AS[,<span class="sc">-</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">12</span>)]</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>A <span class="ot">&lt;-</span> AS[,(<span class="dv">1</span><span class="sc">:</span><span class="dv">12</span>)]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-hash="PSS-Test_cache/html/unnamed-chunk-18_83f81282d9b7def321a91bb2c030371f">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot Spectra</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_s</span>(S)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="PSS-Test_files/figure-html/unnamed-chunk-18-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Clearly this doesn’t correspond even kind of to the spectrum we are putting in but as we’ll see this configuration oddly leads to 2 recovered spectra.</p>
+<div class="cell" data-hash="PSS-Test_cache/html/unnamed-chunk-19_f0712090a8b443e9540a209e4296c312">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># set.seed(87425)</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="co"># X &lt;-  as.matrix(misc_gbrnmf[1:3,])</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="co"># m &lt;- nrow(X)</span></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="co"># n &lt;- ncol(X)</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a><span class="co"># p &lt;- 4</span></span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a><span class="co"># E &lt;- 10^-3</span></span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a><span class="co"># alpha_s &lt;- matrix(0.05, nrow = p, ncol = n)</span></span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a><span class="co"># beta_s &lt;- 0.05 / as.matrix(pure_diss_df)</span></span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a><span class="co"># beta_s[is.infinite(beta_s)] &lt;- E</span></span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a><span class="co"># dataList &lt;- list(X = X, m = m, n = n, p = p, E = E, alpha_s = alpha_s, beta_s = beta_s)</span></span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a><span class="co"># jagsModel = jags.model(</span></span>
+<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a><span class="co">#   file = "PSSmodel.txt" ,</span></span>
+<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a><span class="co">#   data = dataList ,</span></span>
+<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a><span class="co">#   n.chains = 1 ,</span></span>
+<span id="cb26-18"><a href="#cb26-18" aria-hidden="true" tabindex="-1"></a><span class="co">#   n.adapt = 100</span></span>
+<span id="cb26-19"><a href="#cb26-19" aria-hidden="true" tabindex="-1"></a><span class="co"># )</span></span>
+<span id="cb26-20"><a href="#cb26-20" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb26-21"><a href="#cb26-21" aria-hidden="true" tabindex="-1"></a><span class="co"># update(jagsModel , n.iter = 500)</span></span>
+<span id="cb26-22"><a href="#cb26-22" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb26-23"><a href="#cb26-23" aria-hidden="true" tabindex="-1"></a><span class="co"># codaSamples = coda.samples(jagsModel ,</span></span>
+<span id="cb26-24"><a href="#cb26-24" aria-hidden="true" tabindex="-1"></a><span class="co">#                            variable.names = c("A", "S") ,</span></span>
+<span id="cb26-25"><a href="#cb26-25" aria-hidden="true" tabindex="-1"></a><span class="co">#                            n.iter = 5000)</span></span>
+<span id="cb26-26"><a href="#cb26-26" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb26-27"><a href="#cb26-27" aria-hidden="true" tabindex="-1"></a><span class="co"># save(codaSamples, file = "./data/codaSamplesInformativePriorUnScaled.RData")</span></span>
+<span id="cb26-28"><a href="#cb26-28" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">"./data/codaSamplesInformativePriorUnScaled.RData"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-hash="PSS-Test_cache/html/unnamed-chunk-20_2cb5f3b62cd6611185c27ac49752ba38">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert mcmc.list to a list of data frames</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>codaSamples[[<span class="dv">1</span>]] <span class="sc">|&gt;</span> <span class="fu">as.data.frame</span>() <span class="ot">-&gt;</span> AS</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>S <span class="ot">&lt;-</span> AS[,<span class="sc">-</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">12</span>)]</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>A <span class="ot">&lt;-</span> AS[,(<span class="dv">1</span><span class="sc">:</span><span class="dv">12</span>)]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Some diagnostics first:</p>
+<div class="cell" data-hash="PSS-Test_cache/html/unnamed-chunk-21_4c82af565484742e26e23610ebb24ae0">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">diagMCMC</span>( <span class="at">codaObject=</span>codaSamples , <span class="at">parName=</span><span class="st">"S[2,8]"</span> )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Error in gelman.diag(window(x, end = last.iter[i]), confidence = confidence,  : 
+  You need at least two chains</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Warning: coda::gelman.plot fails for S[2,8]"</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="PSS-Test_files/figure-html/unnamed-chunk-21-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<div class="cell" data-hash="PSS-Test_cache/html/unnamed-chunk-22_9caabe8555653e5d335f17d6aa88a43b">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plotPost</span>( codaSamples[,<span class="st">"A[3,4]"</span>] , <span class="at">main=</span><span class="st">"theta"</span> , <span class="at">xlab=</span><span class="fu">bquote</span>(theta) ,</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="at">cenTend=</span><span class="st">"median"</span> )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="PSS-Test_files/figure-html/unnamed-chunk-22-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>           ESS     mean    median      mode hdiMass    hdiLow   hdiHigh compVal
+theta 3.949575 0.193832 0.1720978 0.1562126    0.95 0.1047337 0.3327659      NA
+      pGtCompVal ROPElow ROPEhigh pLtROPE pInROPE pGtROPE
+theta         NA      NA       NA      NA      NA      NA</code></pre>
+</div>
+</div>
+<p>Now let’s look at the spectra:</p>
+<div class="cell" data-hash="PSS-Test_cache/html/unnamed-chunk-23_573f53659c0bb1b4df71fce7334cdd11">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_s</span>(S)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="PSS-Test_files/figure-html/unnamed-chunk-23-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<div class="cell" data-hash="PSS-Test_cache/html/unnamed-chunk-24_5e11e88214a460a610b096799bd58e6b">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_pure_spec_dis</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="PSS-Test_files/figure-html/unnamed-chunk-24-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<ul>
+<li>Get a lot of similar looking spectra</li>
+<li>S3 is Gly</li>
+<li>S4 Is Ser</li>
+<li>S2 or S1 are very noisey GLU</li>
+</ul>
+<p>Now the mixing coefficients:</p>
+<div class="cell" data-hash="PSS-Test_cache/html/unnamed-chunk-25_dcae262d0ef570810c4cef456aee9c62">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>A_mean <span class="ot">&lt;-</span> <span class="fu">summar_A</span>(A)</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>A_mean</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>$a1
+   A[1,1]    A[1,2]    A[1,3]    A[1,4] 
+0.2841207 0.1782556 0.1747654 0.1934071 
+
+$a2
+   A[2,1]    A[2,2]    A[2,3]    A[2,4] 
+0.2840850 0.1784534 0.1751839 0.1942065 
+
+$a3
+   A[3,1]    A[3,2]    A[3,3]    A[3,4] 
+0.2838445 0.1779294 0.1753461 0.1938320 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(A_mean<span class="sc">$</span>a1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.8305487</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(A_mean<span class="sc">$</span>a2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.8319288</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(A_mean<span class="sc">$</span>a3)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.8309521</code></pre>
+</div>
+</div>
+<p>They are fairly equal except for one entry in each. They also don’t sum to one but are close.</p>
+<p>Let’s see what the reconstruction looks like:</p>
+<div class="cell" data-hash="PSS-Test_cache/html/unnamed-chunk-26_5d5a7bde54c30d14bdd1073cbb8ec039">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>parse_indices <span class="ot">&lt;-</span> <span class="cf">function</span>(name) {</span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>  matches <span class="ot">&lt;-</span> <span class="fu">regmatches</span>(name, <span class="fu">gregexpr</span>(<span class="st">"</span><span class="sc">\\</span><span class="st">d+"</span>, name))[[<span class="dv">1</span>]]</span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>  indices <span class="ot">&lt;-</span> <span class="fu">as.integer</span>(matches)</span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(indices)</span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a>S_format <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="dv">0</span>, <span class="at">nrow =</span> <span class="dv">4</span>, <span class="at">ncol =</span> <span class="dv">582</span>)</span>
+<span id="cb43-8"><a href="#cb43-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-9"><a href="#cb43-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Assign values from the dataframe to the matrix</span></span>
+<span id="cb43-10"><a href="#cb43-10" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (col_name <span class="cf">in</span> <span class="fu">colnames</span>(S)) {</span>
+<span id="cb43-11"><a href="#cb43-11" aria-hidden="true" tabindex="-1"></a>  indices <span class="ot">&lt;-</span> <span class="fu">parse_indices</span>(col_name)</span>
+<span id="cb43-12"><a href="#cb43-12" aria-hidden="true" tabindex="-1"></a>  S_format[indices[<span class="dv">1</span>], indices[<span class="dv">2</span>]] <span class="ot">&lt;-</span> <span class="fu">mean</span>(S[,col_name])</span>
+<span id="cb43-13"><a href="#cb43-13" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb43-14"><a href="#cb43-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-15"><a href="#cb43-15" aria-hidden="true" tabindex="-1"></a>A_format <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="dv">0</span>, <span class="at">nrow =</span> <span class="dv">3</span>, <span class="at">ncol =</span> <span class="dv">4</span>)</span>
+<span id="cb43-16"><a href="#cb43-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-17"><a href="#cb43-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Assign values from the dataframe to the matrix</span></span>
+<span id="cb43-18"><a href="#cb43-18" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (col_name <span class="cf">in</span> <span class="fu">colnames</span>(A)) {</span>
+<span id="cb43-19"><a href="#cb43-19" aria-hidden="true" tabindex="-1"></a>  indices <span class="ot">&lt;-</span> <span class="fu">parse_indices</span>(col_name)</span>
+<span id="cb43-20"><a href="#cb43-20" aria-hidden="true" tabindex="-1"></a>  A_format[indices[<span class="dv">1</span>], indices[<span class="dv">2</span>]] <span class="ot">&lt;-</span> <span class="fu">mean</span>(A[,col_name])</span>
+<span id="cb43-21"><a href="#cb43-21" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb43-22"><a href="#cb43-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-23"><a href="#cb43-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-24"><a href="#cb43-24" aria-hidden="true" tabindex="-1"></a>A_format <span class="sc">%*%</span> S_format <span class="sc">|&gt;</span> <span class="fu">as.data.frame</span>() <span class="ot">-&gt;</span> X_recons</span>
+<span id="cb43-25"><a href="#cb43-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-26"><a href="#cb43-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-27"><a href="#cb43-27" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>))</span>
+<span id="cb43-28"><a href="#cb43-28" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">ncol</span>(X_recons),X_recons[<span class="dv">1</span>,], <span class="at">lty =</span> <span class="dv">1</span>, <span class="at">type =</span> <span class="st">"l"</span>,<span class="at">main=</span><span class="st">"Reconstruction"</span>)</span>
+<span id="cb43-29"><a href="#cb43-29" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">ncol</span>(misc_gbrnmf[<span class="dv">1</span>,]),misc_gbrnmf[<span class="dv">1</span>,], <span class="at">lty =</span> <span class="dv">1</span>, <span class="at">type =</span> <span class="st">"l"</span>,<span class="at">main=</span><span class="st">"Reconstruction"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="PSS-Test_files/figure-html/unnamed-chunk-26-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Not a horrible reconstruction, seemingly some loss of information as expected (right most part of the reconstruction is not as bumpy as the original) also there is a resolution difference now.</p>
+</section>
+<section id="informative-prior---trying-to-get-good-looking-prior-model" class="level2">
+<h2 class="anchored" data-anchor-id="informative-prior---trying-to-get-good-looking-prior-model">Informative Prior - trying to get good looking prior model</h2>
+<p>I want to move towards informative priors that actually resemble our spectra. First I’ll try scaling our data so we can get more reasonable gamma distribution hyperparameters.</p>
+<div class="cell" data-hash="PSS-Test_cache/html/unnamed-chunk-27_8979030281a2ebddf023ece1e5d6eb2a">
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>scale_sig <span class="ot">&lt;-</span> <span class="cf">function</span>(X){</span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>min_value <span class="ot">&lt;-</span> <span class="fu">min</span>(X)</span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>X_shifted <span class="ot">&lt;-</span> X <span class="sc">-</span> min_value</span>
+<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a>max_X <span class="ot">&lt;-</span> <span class="fu">max</span>(X_shifted)</span>
+<span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a>X_scaled <span class="ot">&lt;-</span> X_shifted <span class="sc">/</span> max_X</span>
+<span id="cb44-6"><a href="#cb44-6" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb44-7"><a href="#cb44-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-8"><a href="#cb44-8" aria-hidden="true" tabindex="-1"></a>X_scaled <span class="ot">&lt;-</span>  <span class="fu">scale_sig</span>(<span class="fu">as.matrix</span>(misc_gbrnmf[<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>,]))</span>
+<span id="cb44-9"><a href="#cb44-9" aria-hidden="true" tabindex="-1"></a>pure_spec_scaled <span class="ot">&lt;-</span> <span class="fu">scale_sig</span>(pure_diss_df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Now I’ll try making it so the mode value is the true spectra value, not the expected value.</p>
+<div class="cell" data-hash="PSS-Test_cache/html/unnamed-chunk-28_f3110c0b4daa87756a89a06c9e0d8e49">
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>rate <span class="ot">&lt;-</span> <span class="dv">100</span></span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>mode <span class="ot">&lt;-</span> pure_spec_scaled[<span class="dv">1</span>,<span class="dv">1</span>]</span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a>shape <span class="ot">&lt;-</span> mode <span class="sc">*</span> rate <span class="sc">+</span> <span class="dv">1</span></span>
+<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a sequence of x values</span></span>
+<span id="cb45-6"><a href="#cb45-6" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="at">length.out =</span> <span class="dv">1000</span>)</span>
+<span id="cb45-7"><a href="#cb45-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-8"><a href="#cb45-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute the density of the Gamma distribution at these x values</span></span>
+<span id="cb45-9"><a href="#cb45-9" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="fu">dgamma</span>(x, <span class="at">shape =</span> shape, <span class="at">rate =</span> rate)</span>
+<span id="cb45-10"><a href="#cb45-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-11"><a href="#cb45-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot the distribution</span></span>
+<span id="cb45-12"><a href="#cb45-12" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(x, y, <span class="at">type =</span> <span class="st">'l'</span>, <span class="at">main =</span> <span class="st">'Gamma Distribution'</span>,</span>
+<span id="cb45-13"><a href="#cb45-13" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">'x'</span>, <span class="at">ylab =</span> <span class="st">'Density'</span>, <span class="at">col =</span> <span class="st">'blue'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="PSS-Test_files/figure-html/unnamed-chunk-28-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Let’s check out the prior model in JAGS</p>
+<div class="cell" data-hash="PSS-Test_cache/html/unnamed-chunk-29_f37893034737713c10b08a7d14aec999">
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="co"># set.seed(87425)</span></span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a><span class="co"># m &lt;- nrow(X_scaled)</span></span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a><span class="co"># n &lt;- ncol(X_scaled)</span></span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a><span class="co"># p &lt;- 4</span></span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a><span class="co"># E &lt;- 10^-3</span></span>
+<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb46-7"><a href="#cb46-7" aria-hidden="true" tabindex="-1"></a><span class="co"># alpha_s &lt;- matrix(100, nrow = p, ncol = n)</span></span>
+<span id="cb46-8"><a href="#cb46-8" aria-hidden="true" tabindex="-1"></a><span class="co"># beta_s &lt;- pure_spec_scaled * rate + 1</span></span>
+<span id="cb46-9"><a href="#cb46-9" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb46-10"><a href="#cb46-10" aria-hidden="true" tabindex="-1"></a><span class="co"># dataList &lt;- list(m = m, n = n, p = p, E = E, alpha_s = alpha_s, beta_s = beta_s)</span></span>
+<span id="cb46-11"><a href="#cb46-11" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb46-12"><a href="#cb46-12" aria-hidden="true" tabindex="-1"></a><span class="co"># jagsModel = jags.model(</span></span>
+<span id="cb46-13"><a href="#cb46-13" aria-hidden="true" tabindex="-1"></a><span class="co">#   file = "PSSmodel.txt" ,</span></span>
+<span id="cb46-14"><a href="#cb46-14" aria-hidden="true" tabindex="-1"></a><span class="co">#   data = dataList ,</span></span>
+<span id="cb46-15"><a href="#cb46-15" aria-hidden="true" tabindex="-1"></a><span class="co">#   n.chains = 1 ,</span></span>
+<span id="cb46-16"><a href="#cb46-16" aria-hidden="true" tabindex="-1"></a><span class="co">#   n.adapt = 500</span></span>
+<span id="cb46-17"><a href="#cb46-17" aria-hidden="true" tabindex="-1"></a><span class="co"># )</span></span>
+<span id="cb46-18"><a href="#cb46-18" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb46-19"><a href="#cb46-19" aria-hidden="true" tabindex="-1"></a><span class="co"># update(jagsModel , n.iter = 1000)</span></span>
+<span id="cb46-20"><a href="#cb46-20" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb46-21"><a href="#cb46-21" aria-hidden="true" tabindex="-1"></a><span class="co"># codaSamples = coda.samples(jagsModel ,</span></span>
+<span id="cb46-22"><a href="#cb46-22" aria-hidden="true" tabindex="-1"></a><span class="co">#                            variable.names = c("A","S") ,</span></span>
+<span id="cb46-23"><a href="#cb46-23" aria-hidden="true" tabindex="-1"></a><span class="co">#                            n.iter = 50000/4)</span></span>
+<span id="cb46-24"><a href="#cb46-24" aria-hidden="true" tabindex="-1"></a><span class="co"># save(codaSamples, file = "./data/goodKindaWidePriors.RData")</span></span>
+<span id="cb46-25"><a href="#cb46-25" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">"./data/goodKindaWidePriors.RData"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-hash="PSS-Test_cache/html/unnamed-chunk-30_6fdff5ff047b4ef4f13a16d6229b64b4">
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert mcmc.list to a list of data frames</span></span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>codaSamples[[<span class="dv">1</span>]] <span class="sc">|&gt;</span> <span class="fu">as.data.frame</span>() <span class="ot">-&gt;</span> AS</span>
+<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a>S <span class="ot">&lt;-</span> AS[,<span class="sc">-</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">12</span>)]</span>
+<span id="cb47-5"><a href="#cb47-5" aria-hidden="true" tabindex="-1"></a>A <span class="ot">&lt;-</span> AS[,(<span class="dv">1</span><span class="sc">:</span><span class="dv">12</span>)]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-hash="PSS-Test_cache/html/unnamed-chunk-31_c0cd822a363a29cab81632ad37a002a8">
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot Spectra</span></span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_s</span>(S)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="PSS-Test_files/figure-html/unnamed-chunk-31-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>TODO how can I make better prior model?</p>
+<div class="cell" data-hash="PSS-Test_cache/html/unnamed-chunk-32_be4f62d765533b74d8e47f01d3c84d9b">
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="co"># set.seed(87425)</span></span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a><span class="co"># m &lt;- nrow(X_scaled)</span></span>
+<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a><span class="co"># n &lt;- ncol(X_scaled)</span></span>
+<span id="cb49-4"><a href="#cb49-4" aria-hidden="true" tabindex="-1"></a><span class="co"># p &lt;- 4</span></span>
+<span id="cb49-5"><a href="#cb49-5" aria-hidden="true" tabindex="-1"></a><span class="co"># E &lt;- 10^-3</span></span>
+<span id="cb49-6"><a href="#cb49-6" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb49-7"><a href="#cb49-7" aria-hidden="true" tabindex="-1"></a><span class="co"># alpha_s &lt;- matrix(100, nrow = p, ncol = n)</span></span>
+<span id="cb49-8"><a href="#cb49-8" aria-hidden="true" tabindex="-1"></a><span class="co"># beta_s &lt;- pure_spec_scaled * rate + 1</span></span>
+<span id="cb49-9"><a href="#cb49-9" aria-hidden="true" tabindex="-1"></a><span class="co"># # beta_s[is.infinite(beta_s)] &lt;- E</span></span>
+<span id="cb49-10"><a href="#cb49-10" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb49-11"><a href="#cb49-11" aria-hidden="true" tabindex="-1"></a><span class="co"># dataList &lt;- list(X = X_scaled, m = m, n = n, p = p, E = E, alpha_s = alpha_s, beta_s = beta_s)</span></span>
+<span id="cb49-12"><a href="#cb49-12" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb49-13"><a href="#cb49-13" aria-hidden="true" tabindex="-1"></a><span class="co"># jagsModel = jags.model(</span></span>
+<span id="cb49-14"><a href="#cb49-14" aria-hidden="true" tabindex="-1"></a><span class="co">#   file = "PSSmodel.txt" ,</span></span>
+<span id="cb49-15"><a href="#cb49-15" aria-hidden="true" tabindex="-1"></a><span class="co">#   data = dataList ,</span></span>
+<span id="cb49-16"><a href="#cb49-16" aria-hidden="true" tabindex="-1"></a><span class="co">#   n.chains = 1 ,</span></span>
+<span id="cb49-17"><a href="#cb49-17" aria-hidden="true" tabindex="-1"></a><span class="co">#   n.adapt = 100</span></span>
+<span id="cb49-18"><a href="#cb49-18" aria-hidden="true" tabindex="-1"></a><span class="co"># )</span></span>
+<span id="cb49-19"><a href="#cb49-19" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb49-20"><a href="#cb49-20" aria-hidden="true" tabindex="-1"></a><span class="co"># update(jagsModel , n.iter = 500)</span></span>
+<span id="cb49-21"><a href="#cb49-21" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb49-22"><a href="#cb49-22" aria-hidden="true" tabindex="-1"></a><span class="co"># codaSamples = coda.samples(jagsModel ,</span></span>
+<span id="cb49-23"><a href="#cb49-23" aria-hidden="true" tabindex="-1"></a><span class="co">#                            variable.names = c("A", "S") ,</span></span>
+<span id="cb49-24"><a href="#cb49-24" aria-hidden="true" tabindex="-1"></a><span class="co">#                            n.iter = 5000)</span></span>
+<span id="cb49-25"><a href="#cb49-25" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb49-26"><a href="#cb49-26" aria-hidden="true" tabindex="-1"></a><span class="co"># save(codaSamples, file = "./data/codaSamplesInformativePriorScaled.RData")</span></span>
+<span id="cb49-27"><a href="#cb49-27" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">"./data/codaSamplesInformativePriorScaled.RData"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-hash="PSS-Test_cache/html/unnamed-chunk-33_2b2a7281ad05523490cbf2ccd214b4a3">
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert mcmc.list to a list of data frames</span></span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>codaSamples[[<span class="dv">1</span>]] <span class="sc">|&gt;</span> <span class="fu">as.data.frame</span>() <span class="ot">-&gt;</span> AS</span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb50-4"><a href="#cb50-4" aria-hidden="true" tabindex="-1"></a>S <span class="ot">&lt;-</span> AS[,<span class="sc">-</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">12</span>)]</span>
+<span id="cb50-5"><a href="#cb50-5" aria-hidden="true" tabindex="-1"></a>A <span class="ot">&lt;-</span> AS[,(<span class="dv">1</span><span class="sc">:</span><span class="dv">12</span>)]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Some diagnostics first:</p>
+<div class="cell" data-hash="PSS-Test_cache/html/unnamed-chunk-34_9f7303f03bf40312938b19488a9dacd7">
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="fu">diagMCMC</span>( <span class="at">codaObject=</span>codaSamples , <span class="at">parName=</span><span class="st">"S[2,8]"</span> )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Error in gelman.diag(window(x, end = last.iter[i]), confidence = confidence,  : 
+  You need at least two chains</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Warning: coda::gelman.plot fails for S[2,8]"</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="PSS-Test_files/figure-html/unnamed-chunk-34-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<div class="cell" data-hash="PSS-Test_cache/html/unnamed-chunk-35_76fdfa6304bf6d07d452f50f1f437203">
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plotPost</span>( codaSamples[,<span class="st">"A[3,4]"</span>] , <span class="at">main=</span><span class="st">"theta"</span> , <span class="at">xlab=</span><span class="fu">bquote</span>(theta) ,</span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a><span class="at">cenTend=</span><span class="st">"median"</span> )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="PSS-Test_files/figure-html/unnamed-chunk-35-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>           ESS        mean      median        mode hdiMass       hdiLow
+theta 885.1144 0.001051274 0.001042485 0.001085871    0.95 0.0002367415
+         hdiHigh compVal pGtCompVal ROPElow ROPEhigh pLtROPE pInROPE pGtROPE
+theta 0.00191964      NA         NA      NA       NA      NA      NA      NA</code></pre>
+</div>
+</div>
+<p>Now let’s look at the spectra:</p>
+<div class="cell" data-hash="PSS-Test_cache/html/unnamed-chunk-36_d834700b3fac27b66e4767a9aa77b6d1">
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_s</span>(S)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="PSS-Test_files/figure-html/unnamed-chunk-36-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<div class="cell" data-hash="PSS-Test_cache/html/unnamed-chunk-37_80f7db6fa21fbdff72042251a9bd3de0">
+<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_pure_spec_dis</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="PSS-Test_files/figure-html/unnamed-chunk-37-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>A whole lotta nothing</p>
+<p>Now the mixing coefficients:</p>
+<div class="cell" data-hash="PSS-Test_cache/html/unnamed-chunk-38_60bfcd57251421bff8834151e89b39db">
+<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a>A_mean <span class="ot">&lt;-</span> <span class="fu">summar_A</span>(A)</span>
+<span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a>A_mean</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>$a1
+      A[1,1]       A[1,2]       A[1,3]       A[1,4] 
+0.0025344251 0.0002939706 0.0004723512 0.0011635510 
+
+$a2
+      A[2,1]       A[2,2]       A[2,3]       A[2,4] 
+0.0025006245 0.0003449591 0.0004386890 0.0010651876 
+
+$a3
+      A[3,1]       A[3,2]       A[3,3]       A[3,4] 
+0.0025010965 0.0003443611 0.0004296382 0.0010512741 </code></pre>
+</div>
+</div>
+<p>Not very accurate.</p>
+</section>
+<section id="all-observations-in-one-model" class="level2">
+<h2 class="anchored" data-anchor-id="all-observations-in-one-model">All observations in one model</h2>
+<p>Things to also try: all mixed solutions, see if it find spectra, mixing coefficients will probably be messed up Informative priors on just A and not S</p>
+</section>
+</section>
+<section id="stan" class="level1">
+<h1>STAN</h1>
+<p>Is there a difference if we use STAN?</p>
+</section>
+<section id="references" class="level1">
+<h1>References</h1>
+<div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="ref-brie2016bayesian" class="csl-entry" role="listitem">
+Brie, David, Saı̈d Moussaoui, Sebastian Miron, Cédric Carteret, and Manuel Dossot. 2016. <span>“Bayesian Positive Source Separation for Spectral Mixture Analysis.”</span> In <em>Data Handling in Science and Technology</em>, 30:279–309. Elsevier.
+</div>
+</div>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

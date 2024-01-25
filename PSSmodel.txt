@@ -1,0 +1,35 @@
+model {
+    # Likelihood
+    for (i in 1:m) {
+        for (k in 1:n) {
+            X[i, k] ~ dnorm(mu[i, k], tau[i])
+            mu[i, k] <- inprod(A[i, ], S[, k])
+        }
+    }
+
+    # Prior distributions for pure spectra (S) and mixing coefficients (A)
+    for (j in 1:p) {
+        for (k in 1:n) {
+            S[j, k] ~ dgamma(alpha_s[j, k], beta_s[j, k])
+        }
+        for (i in 1:m) {
+            A[i, j] ~ dgamma(alpha_a[j], beta_a[j]) # Assuming A's priors are not element wise
+        }
+    }
+
+    # Hyperparameters for the Gamma distributions for each element of S
+    for (j in 1:p) {
+        for (k in 1:n) {
+            alpha_s[j, k] ~ dgamma(2, E) # Or use other priors as needed
+            beta_s[j, k] ~ dgamma(2, E)
+        }
+        # Assuming alpha_a and beta_a are not element-wise
+        alpha_a[j] ~ dgamma(2, E)
+        beta_a[j] ~ dgamma(2, E)
+    }
+
+    # Noise variances
+    for (i in 1:m) {
+        tau[i] ~ dgamma(2, E)
+    }
+}

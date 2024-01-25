@@ -1,0 +1,1151 @@
+---
+title: "PSS"
+format: html
+editor: visual
+bibliography: references.bib
+execute:
+  cache: true
+---
+
+# Data
+
+These are the Raman of the pure chemicals as solids:
+
+```{r}
+pure_df <-  read.csv("..\\Data\\Input Data for NMF\\Input Data for NMF\\1. Misc q=4 and q=4+ pure bases\\4BasesPure_CA-Glu-Gly-Ser.csv",header = FALSE)
+
+titles <- c("Raman Spectrum for CA", "Raman Spectrum for Glu","Raman Spectrum for Gly","Raman Spectrum for Ser")
+par(mfrow=c(2,2))
+for (i in 1:4) {
+plot(1:length(pure_df[i,]),as.numeric(pure_df[i,]),type="l",ylab="Intensity",xlab="Index",main=titles[i])  
+}
+
+```
+
+If you dissolve the same chemicals in a solution you get new spectra:
+
+```{r}
+pure_diss_df <-  read.csv("..\\Data\\Input Data for NMF\\Input Data for NMF\\2. Misc q=4 and q=4+ solution bases\\4BasesNorm_CA-Glu-Gly-Ser.csv",header = FALSE)
+plot_pure_spec_dis <- function(){
+  
+
+titles <- c("Raman Spectrum for CA", "Raman Spectrum for Glu","Raman Spectrum for Gly","Raman Spectrum for Ser")
+par(mfrow=c(2,2))
+for (i in 1:4) {
+plot(1:length(pure_diss_df[i,]),as.numeric(pure_diss_df[i,]),type="l",ylab="Intensity",xlab="Index",main=titles[i])  
+}
+}
+
+plot_pure_spec_dis()
+```
+
+The following data was the data put into GBR-NMF:
+
+```{r}
+misc_gbrnmf <-  read.csv("..\\Data\\Input Data for NMF\\Input Data for NMF\\2. Misc q=4 and q=4+ solution bases\\nmf_data_CA_Glu_Gly_Ser.csv",header = FALSE)
+head(misc_gbrnmf[,1:6])
+```
+
+There are 3 replicates of 5 mixtures of the same 4 solutions at varying concentrations. This dataframe corresponds to A1-A5 as in the paper. Replicate means they remade the solution and took a Raman spectrum.
+
+```{r}
+par(mfrow=c(2,2))
+titles <- sapply(1:5, function(i) paste0("A", i, "-", 1:3)) |> as.vector()
+for (j in c(1,4,7,10,13)) {
+  plot(1:length(misc_gbrnmf[j,]),as.numeric(misc_gbrnmf[j,]),type="l",ylab="Intensity",xlab="Index",col=1,lty=1) 
+for (i in (j+1):(j+2)) {
+  lines(1:length(misc_gbrnmf[i,]),as.numeric(misc_gbrnmf[i,]),col=i,lty=i)
+}
+legend("topright", legend=titles[j:(j+2)], col=1:3, lty=1:3)
+}
+```
+
+This structure is followed for the B's (Lipids) and the C's (TCA). They were looking to see if they could recover the concentrations of the solutions from the mixture by telling NMF which bases signals were present. We want to see if there are Bayesian techniques to deconvolve this mixture into individual signals and see if we can tell the concentration.
+
+We are going to do a PBSS on the Raman spectra using JAGS.
+
+# Background
+
+The following comes from [@brie2016bayesian]. Consider the following model:
+
+$$\mathbf{X} = \mathbf{AS} + \mathbf{E}$$
+
+
+- $\mathbf{X}_{m \times n}$ is the data matrix where row vectors are the spectra.
+- $\mathbf{A}_{m \times p}$ is the mixing matrix with its column vectors representing the mixing coefficients of each pure component.
+- $\mathbf{S}_{p \times n}$ is the spectra matrix where each row vector is one of the $p$ pure spectra.
+- $\mathbf{E}_{m \times n}$ is the additive noise matrix.
+- It is assumed $\mathbf{A}$ and $\mathbf{S}$ are independent.
+
+Solutions are not unique therefore prior information on the pure component spectra and concentration profiles should be included.
+
+Each noise sequence (row vector of $\mathbf{E}$) is assumed iid Gaussian with zero mean and constant variance within a row. The prior of $\mathbf{E}$ is given as
+
+$$p(\mathbf{E}|\theta_1)=\prod^m_{i=1}\prod^n_{k=1}\mathcal{N}(E_{(i,k)};0,\sigma^2_i)$$
+
+- $\theta_1 = [\sigma_1^2,\dots,\sigma_m^2]^T$.
+
+The pure component spectra are considered mutually independent and identically distribution. Each pure spectrum (row of $\mathbf{S}$) is assumed Gamma with hyperparameters constant for each spectrum. The prior of $\mathbf{S}$ is given as
+
+$$p(\mathbf{S}|\theta_2)=\prod^n_{j=1}\prod^n_{k=1}\mathcal{G}(S_{(j,k)};\alpha_j,\beta_j)$$
+
+- $\theta_2 = [\alpha_1,\dots,\alpha_p,\beta_1,\dots,\beta_p]^T$.
+
+Every column of the mixing matrix is assumed Gamma with hyperparameters constant within columns. The prior of $\mathbf{A}$ is given as
+
+$$p(\mathbf{A}|\theta_3)=\prod^m_{i=1}\prod^p_{j=1}\mathcal{G}(A_{(i,j);\gamma_j,\delta_j})$$
+
+- $\theta_3=[\gamma_1,\dots,\gamma_p,\delta_1,\dots,\delta_p]^T$
+
+The prior for the variance hyperparameter of $\mathbf{E}$ is a $\mathcal{G}(2,\epsilon)$ assigned to $\frac{1}{\sigma^2_i}$ where $\epsilon$ is a small number like $10^{-1}$. The hyperparameters of both $\mathbf{A}$ and $\mathbf{S}$ are $\mathcal{G}(2,\epsilon)$.
+
+The likelihood of the model is given by
+
+$$p(\mathbf{X|\mathbf{S},\mathbf{A},\theta_1})\propto \prod^m_{i=1}\prod^n_{k=1}\left(\frac{1}{\sigma_i}\right)^n\text{exp} \left[ -\frac{1}{2\sigma_i^2}\left(X_{(i,k)}-[\mathbf{AS}]_{(i,k)}\right)^2\right]$$
+
+[@brie2016bayesian] outline several estimators to use for parameters. The joint maximum a posteriori (JMAP) estimates is obtained through:
+
+$$\left(\mathbf{\hat{S}}_{JMAP},\mathbf{\hat{A}}_{JMAP}\right) = \underset{\mathbf{S},\mathbf{A}}{\text{argmax }}p(\mathbf{S},\mathbf{A}|\mathbf{X})$$
+
+An equivalent defintion is through the Bayesian interpretation of penalized least squares estimation methods
+
+$$J(\mathbf{S},\mathbf{A})=-\text{log }p(\mathbf{X}|\mathbf{S},\mathbf{A})-\text{log }p(\mathbf{S})-\text{log }p(\mathbf{A})$$
+The marginal maximum a posterior (MMAP) estimate are obtained through integrating out either $\mathbf{S}$ or $\mathbf{A}$ and maximizing either posterior marginal distributions $p(\mathbf{S}|\mathbf{X})$ or $p(\mathbf{A}|\mathbf{X})$.
+
+The marginal posterior mean (MPM) estimates are obtained from the mean of the marginal posterior distributions $p(\mathbf{S}|\mathbf{X})$ and $p(\mathbf{A}|\mathbf{X})$.
+
+# JAGS
+
+For the following we will try to specify BPSS in JAGS. We're only going to use 1 chain and try different configurations to see what signals we get
+
+## Uninformative Priors
+
+First we will attempt a decomposition of the 3 A1 replicates using uninformative priors.
+
+```{r}
+X <-  as.matrix(misc_gbrnmf[1:3,])
+m <- nrow(X)
+n <- ncol(X)
+p <- 4
+E <- 10^-3
+
+dataList = list(X = X, m = m, n = n, p = p, E = E)
+```
+
+```{r}
+library(rjags)
+library(runjags)
+library(coda)
+
+# jagsModel = jags.model(
+#   file = "PSSmodel.txt" ,
+#   data = dataList ,
+#   n.chains = 1 ,
+#   n.adapt = 1000
+# )
+# 
+# update(jagsModel , n.iter = 1000)
+# 
+# codaSamples = coda.samples(jagsModel ,
+#                            variable.names = c("A","S") ,
+#                            n.iter = 50000/4)
+# save(codaSamples, file = "./data/codaSamplesUninformativePrior.RData")
+load("./data/codaSamplesUninformativePrior.RData")
+```
+
+```{r}
+# Put samples in dataframe
+codaSamples[[1]] |> as.data.frame() -> AS
+
+# Extract matrices
+S <- AS[,-(1:12)]
+A <- AS[,(1:12)]
+```
+
+```{r}
+# Make function for plotting mean learned spectra
+plot_s <- function(S,n=4) {
+  par(mfrow = c(2, 2))
+  for (i in 1:n) {
+    s1 <- S[, grep(paste0("S\\[",i,","), names(S))]
+    s1_mean <- apply(s1, MARGIN = 2, mean)
+    plot(s1_mean, lty = 1, type = "l")
+  }
+}
+
+# Make a function to get mean mixing props
+summar_A <- function(A,n=3) {
+  
+  res <- list()
+  for (i in 1:n) {
+  a1 <- A[, grep(paste0("A\\[",i,","), names(A))]
+  a1_mean <- apply(a1, MARGIN = 2, mean)
+  res <- c(res,list(a1_mean))
+  }
+  
+  res
+}
+```
+
+```{r}
+# Plot Spectra
+plot_s(S,4)
+```
+
+```{r}
+plot_pure_spec_dis()
+```
+
+Looks like bottom right plot is Gly but they are really noisey.
+
+Here is an example of the diagnostics for one of the parameter values. Likely chain didn't converge and posterior density is multimodal.
+```{r}
+source("./utilities/DBDA2E-utilities.R")
+diagMCMC( codaObject=codaSamples , parName="S[1,8]" )
+```
+
+```{r}
+plotPost( codaSamples[,"S[1,8]"] , main="theta" , xlab=bquote(theta) ,
+cenTend="median" )
+```
+Weird looking posterior. Lets see what the mixing proportions are:
+
+```{r}
+A_mean <- summar_A(A)
+A_mean
+```
+Proportions are fairly even except of the last which is encouraging except mixtures don't sum to one... model mispecification?
+
+## Informative Prior (Exp)
+
+Now we can try decomposing with very informative priors on S and see if we recover equal mixing proportions in A.
+
+```{r}
+X <-  as.matrix(misc_gbrnmf[1:3,])
+m <- nrow(X)
+n <- ncol(X)
+p <- 4
+E <- 10^-3
+
+alpha_s <- matrix(0.05, nrow = p, ncol = n)
+beta_s <- 0.05 / as.matrix(pure_diss_df)
+beta_s[is.infinite(beta_s)] <- E
+
+dataList <- list(X = X, m = m, n = n, p = p, E = E, alpha_s = alpha_s, beta_s = beta_s)
+```
+
+Here is an example of the gamma prior we are trying:
+
+```{r}
+# Create a sequence of x values
+x <- seq(0, 0.2, length.out = 1000)
+
+# Compute the density of the Gamma distribution at these x values
+y <- dgamma(x, shape = alpha_s[2,100], rate = beta_s[2,100])
+
+# Plot the distribution
+plot(x, y, type = 'l', main = 'Gamma Distribution',
+     xlab = 'x', ylab = 'Density', col = 'blue')
+```
+It is essentially exponential with the expectation centered on the true pure spectrum value. First lets use JAGS with no data to investigate our prior model:
+
+```{r}
+# dataList <- list(m = m, n = n, p = p, E = E, alpha_s = alpha_s, beta_s = beta_s)
+# 
+# jagsModel = jags.model(
+#   file = "PSSmodel.txt" ,
+#   data = dataList ,
+#   n.chains = 1 ,
+#   n.adapt = 500
+# )
+# 
+# update(jagsModel , n.iter = 1000)
+# 
+# codaSamples = coda.samples(jagsModel ,
+#                            variable.names = c("A","S") ,
+#                            n.iter = 50000/4)
+# save(codaSamples, file = "./data/badPriors.RData")
+load("./data/badPriors.RData")
+```
+
+```{r}
+# Convert mcmc.list to a list of data frames
+codaSamples[[1]] |> as.data.frame() -> AS
+
+S <- AS[,-(1:12)]
+A <- AS[,(1:12)]
+```
+
+```{r}
+# Plot Spectra
+plot_s(S)
+```
+
+Clearly this doesn't correspond even kind of to the spectrum we are putting in but as we'll see this configuration oddly leads to 2 recovered spectra.
+
+```{r}
+# set.seed(87425)
+# X <-  as.matrix(misc_gbrnmf[1:3,])
+# m <- nrow(X)
+# n <- ncol(X)
+# p <- 4
+# E <- 10^-3
+# 
+# alpha_s <- matrix(0.05, nrow = p, ncol = n)
+# beta_s <- 0.05 / as.matrix(pure_diss_df)
+# beta_s[is.infinite(beta_s)] <- E
+# 
+# dataList <- list(X = X, m = m, n = n, p = p, E = E, alpha_s = alpha_s, beta_s = beta_s)
+# 
+# jagsModel = jags.model(
+#   file = "PSSmodel.txt" ,
+#   data = dataList ,
+#   n.chains = 1 ,
+#   n.adapt = 100
+# )
+# 
+# update(jagsModel , n.iter = 500)
+# 
+# codaSamples = coda.samples(jagsModel ,
+#                            variable.names = c("A", "S") ,
+#                            n.iter = 5000)
+# 
+# save(codaSamples, file = "./data/codaSamplesInformativePriorUnScaled.RData")
+load("./data/codaSamplesInformativePriorUnScaled.RData")
+```
+
+```{r}
+# Convert mcmc.list to a list of data frames
+codaSamples[[1]] |> as.data.frame() -> AS
+
+S <- AS[,-(1:12)]
+A <- AS[,(1:12)]
+```
+
+Some diagnostics first:
+
+```{r}
+diagMCMC( codaObject=codaSamples , parName="S[2,8]" )
+```
+
+```{r}
+plotPost( codaSamples[,"A[3,4]"] , main="theta" , xlab=bquote(theta) ,
+cenTend="median" )
+```
+
+Now let's look at the spectra:
+
+```{r}
+plot_s(S)
+```
+
+
+```{r}
+plot_pure_spec_dis()
+```
+
+- Get a lot of similar looking spectra
+- S3 is Gly
+- S4 Is Ser
+- S2 or S1 are very noisey GLU
+
+
+Now the mixing coefficients:
+
+```{r}
+A_mean <- summar_A(A)
+A_mean
+sum(A_mean$a1)
+sum(A_mean$a2)
+sum(A_mean$a3)
+```
+
+They are fairly equal except for one entry in each. They also don't sum to one but are close.
+
+Let's see what the reconstruction looks like:
+
+```{r}
+parse_indices <- function(name) {
+  matches <- regmatches(name, gregexpr("\\d+", name))[[1]]
+  indices <- as.integer(matches)
+  return(indices)
+}
+
+S_format <- matrix(0, nrow = 4, ncol = 582)
+
+# Assign values from the dataframe to the matrix
+for (col_name in colnames(S)) {
+  indices <- parse_indices(col_name)
+  S_format[indices[1], indices[2]] <- mean(S[,col_name])
+}
+
+A_format <- matrix(0, nrow = 3, ncol = 4)
+
+# Assign values from the dataframe to the matrix
+for (col_name in colnames(A)) {
+  indices <- parse_indices(col_name)
+  A_format[indices[1], indices[2]] <- mean(A[,col_name])
+}
+
+
+A_format %*% S_format |> as.data.frame() -> X_recons
+
+
+par(mfrow=c(1,2))
+plot(1:ncol(X_recons),X_recons[1,], lty = 1, type = "l",main="Reconstruction")
+plot(1:ncol(misc_gbrnmf[1,]),misc_gbrnmf[1,], lty = 1, type = "l",main="Original")
+```
+Not a horrible reconstruction, seemingly some loss of information as expected (right most part of the reconstruction is not as bumpy as the original) also there is a resolution difference now.
+
+
+## Informative Prior - trying to get good looking prior model
+
+I want to move towards informative priors that actually resemble our spectra. First I'll try scaling our data so we can get more reasonable gamma distribution hyperparameters.
+
+```{r}
+scale_sig <- function(X){
+min_value <- min(X)
+X_shifted <- X - min_value
+max_X <- max(X_shifted)
+X_scaled <- X_shifted / max_X
+}
+
+X_scaled <-  scale_sig(as.matrix(misc_gbrnmf[1:3,]))
+pure_spec_scaled <- scale_sig(pure_diss_df)
+```
+
+Now I'll try making it so the mode value is the true spectra value, not the expected value.
+
+```{r}
+rate <- 100
+mode <- pure_spec_scaled[1,1]
+shape <- mode * rate + 1
+
+# Create a sequence of x values
+x <- seq(0, 1, length.out = 1000)
+
+# Compute the density of the Gamma distribution at these x values
+y <- dgamma(x, shape = shape, rate = rate)
+
+# Plot the distribution
+plot(x, y, type = 'l', main = 'Gamma Distribution',
+     xlab = 'x', ylab = 'Density', col = 'blue')
+```
+Let's check out the prior model in JAGS
+
+```{r}
+# set.seed(87425)
+# m <- nrow(X_scaled)
+# n <- ncol(X_scaled)
+# p <- 4
+# E <- 10^-3
+# 
+# alpha_s <- matrix(100, nrow = p, ncol = n)
+# beta_s <- pure_spec_scaled * rate + 1
+# 
+# dataList <- list(m = m, n = n, p = p, E = E, alpha_s = alpha_s, beta_s = beta_s)
+# 
+# jagsModel = jags.model(
+#   file = "PSSmodel.txt" ,
+#   data = dataList ,
+#   n.chains = 1 ,
+#   n.adapt = 500
+# )
+# 
+# update(jagsModel , n.iter = 1000)
+# 
+# codaSamples = coda.samples(jagsModel ,
+#                            variable.names = c("A","S") ,
+#                            n.iter = 50000/4)
+# save(codaSamples, file = "./data/goodKindaWidePriors.RData")
+load("./data/goodKindaWidePriors.RData")
+```
+
+```{r}
+# Convert mcmc.list to a list of data frames
+codaSamples[[1]] |> as.data.frame() -> AS
+
+S <- AS[,-(1:12)]
+A <- AS[,(1:12)]
+```
+
+```{r}
+# Plot Spectra
+plot_s(S)
+```
+TODO how can I make better prior model?
+
+```{r}
+# set.seed(87425)
+# m <- nrow(X_scaled)
+# n <- ncol(X_scaled)
+# p <- 4
+# E <- 10^-3
+# 
+# alpha_s <- matrix(100, nrow = p, ncol = n)
+# beta_s <- pure_spec_scaled * rate + 1
+# # beta_s[is.infinite(beta_s)] <- E
+# 
+# dataList <- list(X = X_scaled, m = m, n = n, p = p, E = E, alpha_s = alpha_s, beta_s = beta_s)
+# 
+# jagsModel = jags.model(
+#   file = "PSSmodel.txt" ,
+#   data = dataList ,
+#   n.chains = 1 ,
+#   n.adapt = 100
+# )
+# 
+# update(jagsModel , n.iter = 500)
+# 
+# codaSamples = coda.samples(jagsModel ,
+#                            variable.names = c("A", "S") ,
+#                            n.iter = 5000)
+# 
+# save(codaSamples, file = "./data/codaSamplesInformativePriorScaled.RData")
+load("./data/codaSamplesInformativePriorScaled.RData")
+```
+
+```{r}
+# Convert mcmc.list to a list of data frames
+codaSamples[[1]] |> as.data.frame() -> AS
+
+S <- AS[,-(1:12)]
+A <- AS[,(1:12)]
+```
+
+Some diagnostics first:
+
+```{r}
+diagMCMC( codaObject=codaSamples , parName="S[2,8]" )
+```
+
+```{r}
+plotPost( codaSamples[,"A[3,4]"] , main="theta" , xlab=bquote(theta) ,
+cenTend="median" )
+```
+
+Now let's look at the spectra:
+
+```{r}
+plot_s(S)
+```
+
+
+```{r}
+plot_pure_spec_dis()
+```
+
+A whole lotta nothing
+
+
+Now the mixing coefficients:
+
+```{r}
+A_mean <- summar_A(A)
+A_mean
+```
+
+Not very accurate.
+
+## Prior where I set the variance and expectation
+
+Lets try setting a better prior. We will make sure the expectation is equal to the value we expect to see in the pure spectra, but we will also constrain the variance to be 1.
+
+If variance and and mean are set then $\alpha$ and $\beta$ are given by:
+
+$$\begin{align}
+\alpha &= \frac{\mu}{\sigma^2} \\
+\beta &= \frac{\mu^2}{\sigma^2}
+\end{align}$$
+
+Brining that into our model:
+
+```{r}
+# set.seed(87425)
+# 
+# temp <- as.matrix(misc_gbrnmf[1:3,])
+# for (i in 1:3) {
+# temp[i,] <- (temp[i,] - mean(temp[i,]))/sd(temp[i,])  + 1 # 1 is here so values are nonegative, better way to do this?
+# }
+# 
+# temp2 <- as.matrix(pure_diss_df)
+# for (i in 1:4) {
+# temp2[i,] <- (temp2[i,] - mean(temp2[i,]))/sd(temp2[i,]) + 1 # 1 is here for the same reason
+# }
+# 
+# 
+# 
+# X <-  temp
+# m <- nrow(X)
+# n <- ncol(X)
+# p <- 4
+# E <- 10^-3
+# 
+# var <- 1
+# expectations <-  temp2
+# 
+# alpha_s <- expectations^2/var
+# beta_s <-expectations/var
+# beta_s[beta_s == 0] <-  E
+# alpha_s[alpha_s == 0] <-  E
+# 
+# dataList <- list(m = m, n = n, p = p, E = E, alpha_s = alpha_s, beta_s = beta_s)
+# 
+# jagsModel = jags.model(
+#   file = "PSSmodel.txt" ,
+#   data = dataList ,
+#   n.chains = 1 ,
+#   n.adapt = 100
+# )
+# 
+# codaSamples = coda.samples(jagsModel ,
+#                            variable.names = c("A", "S") ,
+#                            n.iter = 5000)
+# 
+# save(codaSamples, file = "./data/codaSamplesInformativePriorSetVarAndMeanPriorModel.RData")
+load("./data/codaSamplesInformativePriorSetVarAndMeanPriorModel.RData")
+```
+
+```{r}
+# Convert mcmc.list to a list of data frames
+codaSamples[[1]] |> as.data.frame() -> AS
+
+S <- AS[,-(1:12)]
+A <- AS[,(1:12)]
+plot_s(S)
+```
+
+Now that we have a good looking prior model lets see how the model behaves.
+
+```{r}
+# set.seed(87425)
+# 
+# temp <- as.matrix(misc_gbrnmf[1:3,])
+# for (i in 1:3) {
+# temp[i,] <- (temp[i,] - mean(temp[i,]))/sd(temp[i,])  + 1 # 1 is here so values are nonegative, better way to do this?
+# }
+# 
+# temp2 <- as.matrix(pure_diss_df)
+# for (i in 1:4) {
+# temp2[i,] <- (temp2[i,] - mean(temp2[i,]))/sd(temp2[i,]) + 1 # 1 is here for the same reason
+# }
+# 
+# 
+# 
+# X <-  temp
+# m <- nrow(X)
+# n <- ncol(X)
+# p <- 4
+# E <- 10^-3
+# 
+# var <- 1
+# expectations <-  temp2
+# 
+# alpha_s <- expectations^2/var
+# beta_s <-expectations/var
+# beta_s[beta_s == 0] <-  E
+# alpha_s[alpha_s == 0] <-  E
+# 
+# dataList <- list(X=temp,m = m, n = n, p = p, E = E, alpha_s = alpha_s, beta_s = beta_s)
+# 
+# jagsModel = jags.model(
+#   file = "PSSmodel.txt" ,
+#   data = dataList ,
+#   n.chains = 4 ,
+#   n.adapt = 1000
+# )
+# 
+# update(jagsModel , n.iter = 5000)
+# 
+# codaSamples = coda.samples(jagsModel ,
+#                            variable.names = c("A", "S") ,
+#                            n.iter = 5000)
+# 
+# save(codaSamples, file = "./data/codaSamplesInformativePriorSetVarAndMeanPostModel.RData")
+load("./data/codaSamplesInformativePriorSetVarAndMeanPostModel.RData")
+```
+
+```{r}
+# Convert mcmc.list to a list of data frames
+codaSamples[[1]] |> as.data.frame() -> AS1
+codaSamples[[2]] |> as.data.frame() -> AS2
+codaSamples[[3]] |> as.data.frame() -> AS3
+codaSamples[[4]] |> as.data.frame() -> AS4
+
+S1 <- AS1[,-(1:12)]
+A1 <- AS1[,(1:12)]
+
+S2 <- AS2[,-(1:12)]
+A2 <- AS2[,(1:12)]
+
+S3 <- AS3[,-(1:12)]
+A3 <- AS3[,(1:12)]
+
+S4 <- AS4[,-(1:12)]
+A4 <- AS4[,(1:12)]
+```
+
+Some diagnostics first:
+
+```{r}
+diagMCMC( codaObject=codaSamples , parName="S[2,8]" )
+```
+
+```{r}
+plotPost( codaSamples[,"A[3,4]"] , main="theta" , xlab=bquote(theta) ,
+cenTend="median" )
+```
+
+Now let's look at the spectra:
+
+```{r}
+plot_s(S4)
+```
+
+
+```{r}
+plot_pure_spec_dis()
+```
+
+Pretty much a perfect reconstruction
+
+
+Now the mixing coefficients:
+
+```{r}
+A_mean <- summar_A(A4)
+A_mean$a1
+```
+
+All are even except it misses the first component
+
+Let's try adding one unobserved component and see what happen to the learned spectra and mixing proportions
+
+```{r}
+set.seed(87425)
+
+temp <- as.matrix(misc_gbrnmf[1:3,])
+for (i in 1:3) {
+temp[i,] <- (temp[i,] - mean(temp[i,]))/sd(temp[i,])  + 1 # 1 is here so values are nonegative, better way to do this?
+}
+
+temp2 <- as.matrix(pure_diss_df)
+for (i in 1:4) {
+temp2[i,] <- (temp2[i,] - mean(temp2[i,]))/sd(temp2[i,]) + 1 # 1 is here for the same reason
+}
+
+
+
+X <-  temp
+m <- nrow(X)
+n <- ncol(X)
+p <- 5
+E <- 10^-3
+
+var <- 1
+expectations <-  temp2
+
+alpha_s <- expectations^2/var
+beta_s <-expectations/var
+beta_s[beta_s == 0] <-  E
+alpha_s[alpha_s == 0] <-  E
+
+beta_s <- rbind(beta_s,rep(1,ncol(beta_s)))
+alpha_s <- rbind(alpha_s,rep(1,ncol(alpha_s)))
+
+
+dataList <- list(X=temp,m = m, n = n, p = p, E = E, alpha_s = alpha_s, beta_s = beta_s)
+
+jagsModel = jags.model(
+  file = "PSSmodel.txt" ,
+  data = dataList ,
+  n.chains = 4 ,
+  n.adapt = 1000
+)
+
+update(jagsModel , n.iter = 5000)
+
+codaSamples = coda.samples(jagsModel ,
+                           variable.names = c("A", "S") ,
+                           n.iter = 5000)
+
+save(codaSamples, file = "./data/codaSamplesInformativePriorSetVarAndMeanPostModel1Unobs.RData")
+load("./data/codaSamplesInformativePriorSetVarAndMeanPostModel1Unobs.RData")
+```
+```{r}
+# Convert mcmc.list to a list of data frames
+codaSamples[[1]] |> as.data.frame() -> AS1
+codaSamples[[2]] |> as.data.frame() -> AS2
+codaSamples[[3]] |> as.data.frame() -> AS3
+codaSamples[[4]] |> as.data.frame() -> AS4
+
+S1 <- AS1[,-(1:12)]
+A1 <- AS1[,(1:12)]
+
+S2 <- AS2[,-(1:12)]
+A2 <- AS2[,(1:12)]
+
+S3 <- AS3[,-(1:12)]
+A3 <- AS3[,(1:12)]
+
+S4 <- AS4[,-(1:12)]
+A4 <- AS4[,(1:12)]
+```
+
+Some diagnostics first:
+
+```{r}
+diagMCMC( codaObject=codaSamples , parName="S[2,8]" )
+```
+
+```{r}
+plotPost( codaSamples[,"A[3,4]"] , main="theta" , xlab=bquote(theta) ,
+cenTend="median" )
+```
+
+Now let's look at the spectra:
+
+```{r}
+plot_s(S4,5)
+```
+
+```{r}
+summar_A(A1,3)
+```
+What if you only specify 3 and there are actually 4?
+
+
+```{r}
+# set.seed(87425)
+# 
+# temp <- as.matrix(misc_gbrnmf[1:3,])
+# for (i in 1:3) {
+# temp[i,] <- (temp[i,] - mean(temp[i,]))/sd(temp[i,])  + 1 # 1 is here so values are nonegative, better way to do this?
+# }
+# 
+# temp2 <- as.matrix(pure_diss_df)
+# for (i in 1:4) {
+# temp2[i,] <- (temp2[i,] - mean(temp2[i,]))/sd(temp2[i,]) + 1 # 1 is here for the same reason
+# }
+# 
+# 
+# 
+# X <-  temp
+# m <- nrow(X)
+# n <- ncol(X)
+# p <- 4
+# E <- 10^-3
+# 
+# var <- 1
+# expectations <-  temp2[1:3,]
+# 
+# alpha_s <- expectations^2/var
+# beta_s <-expectations/var
+# beta_s[beta_s == 0] <-  E
+# alpha_s[alpha_s == 0] <-  E
+# 
+# beta_s <- rbind(beta_s,rep(1,ncol(beta_s)))
+# alpha_s <- rbind(alpha_s,rep(1,ncol(alpha_s)))
+# 
+# 
+# dataList <- list(X=temp,m = m, n = n, p = p, E = E, alpha_s = alpha_s, beta_s = beta_s)
+# 
+# jagsModel = jags.model(
+#   file = "PSSmodel.txt" ,
+#   data = dataList ,
+#   n.chains = 4 ,
+#   n.adapt = 1000
+# )
+# 
+# update(jagsModel , n.iter = 5000)
+# 
+# codaSamples = coda.samples(jagsModel ,
+#                            variable.names = c("A", "S") ,
+#                            n.iter = 5000)
+# 
+# save(codaSamples, file = "./data/codaSamplesInformativePriorSetVarAndMeanPostModel1UnobsBut3PSpecs.RData")
+load("./data/codaSamplesInformativePriorSetVarAndMeanPostModel1UnobsBut3PSpecs.RData")
+```
+
+
+```{r}
+# Convert mcmc.list to a list of data frames
+codaSamples[[1]] |> as.data.frame() -> AS1
+codaSamples[[2]] |> as.data.frame() -> AS2
+codaSamples[[3]] |> as.data.frame() -> AS3
+codaSamples[[4]] |> as.data.frame() -> AS4
+
+S1 <- AS1[,-(1:12)]
+A1 <- AS1[,(1:12)]
+
+S2 <- AS2[,-(1:12)]
+A2 <- AS2[,(1:12)]
+
+S3 <- AS3[,-(1:12)]
+A3 <- AS3[,(1:12)]
+
+S4 <- AS4[,-(1:12)]
+A4 <- AS4[,(1:12)]
+```
+
+Some diagnostics first:
+
+```{r}
+diagMCMC( codaObject=codaSamples , parName="S[2,8]" )
+```
+
+```{r}
+plotPost( codaSamples[,"A[3,4]"] , main="theta" , xlab=bquote(theta) ,
+cenTend="median" )
+```
+
+Now let's look at the spectra:
+
+```{r}
+plot_s(S4,4)
+```
+```{r}
+plot_pure_spec_dis()
+```
+
+
+```{r}
+summar_A(A1,3)
+```
+
+## All observations in one model
+
+Things to also try: all mixed solutions, see if it find spectra, mixing coefficients will probably be messed up
+Informative priors on just A and not S
+
+# STAN
+
+TODO: check prior model first then fit and do diagnostics
+
+```{r}
+# Set the random seed for reproducibility
+set.seed(87425)
+
+# Determine the dimensions for the dummy data
+m <- 3   # Number of observations (can be set to any reasonable value)
+n <- 4   # Number of data points in each observation (can be set to any reasonable value)
+p <- 4   # Number of sources
+E <- 10^-3
+
+# Prepare hyperparameters for the priors (can use dummy values or values from your original setup)
+expectations <- matrix(1, nrow = p, ncol = n)  # Dummy expectations matrix
+var <- 1
+alpha_s <- expectations^2 / var
+beta_s <- expectations / var
+beta_s[beta_s == 0] <- E
+alpha_s[alpha_s == 0] <- E
+
+# Prepare the data list for Stan (X is not needed for prior predictive check)
+dataList <- list(m = m, n = n, p = p, E = E, alpha_s = alpha_s, beta_s = beta_s)
+
+# Load rstan package
+library(rstan)
+
+# Read the modified Stan model for prior predictive check from the file
+stan_model_file <- "C:\\Users\\danie\\Desktop\\School\\2023 W2\\Thesis\\PSS\\BPSS_stan_prior_check"
+stan_model_code <- readLines(stan_model_file, warn = FALSE)
+stan_model_code <- paste(stan_model_code, collapse = "\n")
+
+
+
+# Fit the modified model for prior predictive check
+fit_prior <- stan(model_code = stan_model_code, data = dataList, iter = 2000, chains = 1)
+
+# Extract and analyze the predicted data
+X_pred <- extract(fit_prior)$X_pred
+# You can now create plots or perform statistical summaries on X_pred to analyze the prior predictive check
+
+extracted <- extract(fit)
+S_samples <- extracted$S
+A_samples <- extracted$A
+# Optionally, calculate the mean of S
+S_mean <- apply(S_samples, c(2, 3), mean)
+A_mean <- apply(A_samples, c(2, 3), mean)
+
+
+par(mfrow=c(2,2))
+for (i in 1:4) {
+  plot(1:dim(S_mean)[2], S_mean[i,], xlab = "Data Point", 
+     ylab = "Source", main = "Average Source Signals",type="l")
+}
+```
+
+
+Is there a difference if we use STAN?
+
+```{r}
+set.seed(87425)
+
+temp <- as.matrix(misc_gbrnmf[1:3,])
+for (i in 1:3) {
+temp[i,] <- (temp[i,] - mean(temp[i,]))/sd(temp[i,])  + 1 # 1 is here so values are nonegative, better way to do this?
+}
+
+temp2 <- as.matrix(pure_diss_df)
+for (i in 1:4) {
+temp2[i,] <- (temp2[i,] - mean(temp2[i,]))/sd(temp2[i,]) + 1 # 1 is here for the same reason
+}
+
+
+
+X <-  temp
+m <- nrow(X)
+n <- ncol(X)
+p <- 4
+E <- 10^-3
+
+var <- 1
+expectations <-  temp2[1:3,]
+
+alpha_s <- expectations^2/var
+beta_s <-expectations/var
+beta_s[beta_s == 0] <-  E
+alpha_s[alpha_s == 0] <-  E
+
+# beta_s <- rbind(beta_s,rep(1,ncol(beta_s)))
+# alpha_s <- rbind(alpha_s,rep(1,ncol(alpha_s)))
+
+
+dataList <- list(X=temp,m = m, n = n, p = p, E=E,alpha_s = alpha_s, beta_s = beta_s)
+
+# Load rstan package
+library(rstan)
+
+# Read the Stan model from the file
+stan_model_file <- "BPSS_stan.txt"
+stan_model_code <- readLines(stan_model_file, warn = FALSE)
+stan_model_code <- paste(stan_model_code, collapse = "\n")
+
+dataList <- list(X=temp,m = m, n = n, p = p, E = E, alpha_s = alpha_s, beta_s = beta_s)
+
+# Fit the model
+fit <- stan(model_code = stan_model_code, data = dataList, iter = 2000, chains = 1)
+
+# Print the results
+# print(fit)
+```
+
+
+
+```{r}
+save(fit, file = "./data/STAN_model_run_1.RData")
+load("./data/STAN_model_run_1.RData")
+```
+
+
+```{r}
+extracted <- extract(fit)
+S_samples <- extracted$S
+A_samples <- extracted$A
+# Optionally, calculate the mean of S
+S_mean <- apply(S_samples, c(2, 3), mean)
+A_mean <- apply(A_samples, c(2, 3), mean)
+```
+
+```{r}
+# Print summary of the model fit
+# print(fit)
+
+# Check for convergence using R-hat statistic
+# R-hat values should ideally be close to 1
+summary(fit)$summary[,"Rhat"]
+
+# Plot diagnostics
+stan_diag(fit)
+
+# Traceplots for parameters
+stan_trace(fit)
+
+# Check the effective sample size
+summary(fit)$summary[,"n_eff"]
+
+# Autocorrelation
+stan_ac(fit)
+
+```
+
+```{r}
+par(mfrow=c(2,2))
+for (i in 1:4) {
+  plot(1:dim(S_mean)[2], S_mean[i,], xlab = "Data Point", 
+     ylab = "Source", main = "Average Source Signals",type="l")
+}
+```
+
+Here are some BayesPlot Diagnostics:
+
+```{r}
+library(bayesplot)
+# color_scheme_set("mix-brightblue")
+mcmc_trace(fit, pars = c("A", "S"), n_warmup = 1000)
+rhat_values <- rhat(fit)
+bayesplot::mcmc_rhat(rhat_values)
+mcmc_dens(fit, pars = c("A", "S"))
+mcmc_acf(fit, pars = c("A", "S"))
+params_to_plot <- c("A[1,1]", "S[1,1]")  # Modify as needed
+color_scheme_set("blue")
+mcmc_pairs(fit, pars = params_to_plot)
+ppc_dens_overlay(y = X, yrep = posterior_predict(fit))
+
+```
+
+
+
+
+
+#TODO
+
+Try this instead of adding a constant:
+
+```{r}
+scale_to_positive <- function(x) {
+  (x - min(x)) / (max(x) - min(x))
+}
+temp <- apply(temp, 2, scale_to_positive)  # Apply column-wise
+
+```
+
+# Paper Plan
+
+- Introduction
+  - What we are gonna do
+  - Why it is important
+- Data
+  - What is Raman data
+  - What data do we have
+- Background
+  - BPSS
+  - JAGS vs STAN, what algs they use
+- Analysis
+  - JAGS output
+    - show convergence stuff (times and diags)
+    - investigate output
+  - STAN output
+    - show convergence stuff (times and diags)
+    - investigate output
+  - Both big table of convergence diagnostics for all different parameterizations of Gamma priors
+  
+
+When investigating output the experiments I want to show are:
+- If all 4 spectra are known can the model recover accurate mixing proportions with strong priors on S
+- If all 4 spectra are known can the model recover accurate mixing proportions with weak priors on S
+- If only 3/4 spectra are specified what does the 4th spectra look like and can you recover accurate A
+- If an extra spectra is specifed what does it look like and can you recover accurate A
+- Is there any difference in the learned S or A if priors are set to liquid vs solid states of pure spectra
+
+When investigatings JAGS vs STAN models I want to
+- discuss difference in output
+- discuss difference in convergence
+
+# References
+
+::: {#refs}
+:::
+
+
+
